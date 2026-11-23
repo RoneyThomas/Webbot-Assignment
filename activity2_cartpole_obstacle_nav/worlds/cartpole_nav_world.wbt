@@ -1,0 +1,313 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+
+WorldInfo {
+  info [
+    "CartPole robot that circles a target object while avoiding obstacles (deepbots Robot-Supervisor scheme)"
+  ]
+  title "CartPole Obstacle Navigation"
+  basicTimeStep 16
+}
+Viewpoint {
+  orientation -0.3783 0.3783 0.8449 1.7386
+  position 0 -5.0 5.6
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 4 4
+  wallHeight 0.2
+}
+
+# ---------------------------------------------------------------
+# The object the robot must drive around (centre of the orbit)
+# ---------------------------------------------------------------
+DEF TARGET Solid {
+  translation 0 0 0.25
+  children [
+    DEF TARGET_SHAPE Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.8 0
+        roughness 0.4
+        metalness 0
+      }
+      geometry Cylinder {
+        height 0.5
+        radius 0.2
+      }
+    }
+  ]
+  name "target"
+  boundingObject USE TARGET_SHAPE
+}
+
+# ---------------------------------------------------------------
+# Obstacles placed ON the orbit path (radius 1.0 m)
+# ---------------------------------------------------------------
+DEF OBSTACLE_1 Solid {
+  translation 0.5 0.866 0.15
+  children [
+    DEF OBS_BOX Shape {
+      appearance PBRAppearance {
+        baseColor 0.3 0.3 0.35
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.25 0.25 0.3
+      }
+    }
+  ]
+  name "obstacle1"
+  boundingObject USE OBS_BOX
+}
+DEF OBSTACLE_2 Solid {
+  translation -1 0 0.15
+  children [
+    DEF OBS_CYL Shape {
+      appearance PBRAppearance {
+        baseColor 0.3 0.3 0.35
+        roughness 1
+        metalness 0
+      }
+      geometry Cylinder {
+        height 0.3
+        radius 0.13
+      }
+    }
+  ]
+  name "obstacle2"
+  boundingObject USE OBS_CYL
+}
+DEF OBSTACLE_3 Solid {
+  translation 0.5 -0.866 0.15
+  rotation 0 0 1 0.6
+  children [
+    USE OBS_BOX
+  ]
+  name "obstacle3"
+  boundingObject USE OBS_BOX
+}
+
+# ---------------------------------------------------------------
+# CartPole robot: 4-wheel cart (differential drive) + free pole
+# ---------------------------------------------------------------
+DEF ROBOT Robot {
+  translation 1 0 0.045
+  rotation 0 0 1 1.5708
+  children [
+    DEF BODY Shape {
+      appearance PBRAppearance {
+        baseColor 0.917647 0.145098 0.145098
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.2 0.14 0.05
+      }
+    }
+    DEF WHEEL1 HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0.06 0.09 0
+      }
+      device [
+        RotationalMotor {
+          name "wheel1"
+          maxVelocity 12
+        }
+      ]
+      endPoint Solid {
+        translation 0.06 0.09 0
+        rotation 1 0 0 1.5708
+        children [
+          DEF WHEEL Shape {
+            appearance PBRAppearance {
+              baseColor 0.305882 0.898039 0.25098
+              roughness 1
+              metalness 0
+            }
+            geometry Cylinder {
+              height 0.02
+              radius 0.04
+              subdivision 24
+            }
+          }
+        ]
+        name "wheel1"
+        boundingObject USE WHEEL
+        physics Physics {
+        }
+      }
+    }
+    DEF WHEEL2 HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor -0.06 0.09 0
+      }
+      device [
+        RotationalMotor {
+          name "wheel2"
+          maxVelocity 12
+        }
+      ]
+      endPoint Solid {
+        translation -0.06 0.09 0
+        rotation 1 0 0 1.5708
+        children [
+          USE WHEEL
+        ]
+        name "wheel2"
+        boundingObject USE WHEEL
+        physics Physics {
+        }
+      }
+    }
+    DEF WHEEL3 HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0.06 -0.09 0
+      }
+      device [
+        RotationalMotor {
+          name "wheel3"
+          maxVelocity 12
+        }
+      ]
+      endPoint Solid {
+        translation 0.06 -0.09 0
+        rotation 1 0 0 1.5708
+        children [
+          USE WHEEL
+        ]
+        name "wheel3"
+        boundingObject USE WHEEL
+        physics Physics {
+        }
+      }
+    }
+    DEF WHEEL4 HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor -0.06 -0.09 0
+      }
+      device [
+        RotationalMotor {
+          name "wheel4"
+          maxVelocity 12
+        }
+      ]
+      endPoint Solid {
+        translation -0.06 -0.09 0
+        rotation 1 0 0 1.5708
+        children [
+          USE WHEEL
+        ]
+        name "wheel4"
+        boundingObject USE WHEEL
+        physics Physics {
+        }
+      }
+    }
+    DEF POLE HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 0 0.03
+        minStop -0.6
+        maxStop 0.6
+        dampingConstant 0.5
+        springConstant 2
+      }
+      device [
+        PositionSensor {
+          name "polePosSensor"
+        }
+      ]
+      endPoint Solid {
+        translation 0 0 0.33
+        children [
+          DEF POLE_SHAPE Shape {
+            appearance PBRAppearance {
+              baseColor 1 0.156863 0.156863
+              roughness 1
+              metalness 0
+            }
+            geometry Box {
+              size 0.02 0.02 0.6
+            }
+          }
+          Solid {
+            translation 0 0 0.3
+            children [
+              DEF BALL Shape {
+                appearance PBRAppearance {
+                  baseColor 0.031 0.047 1
+                  metalness 0
+                }
+                geometry Sphere {
+                  radius 0.02
+                }
+              }
+            ]
+            name "poleEndpoint"
+            boundingObject USE BALL
+            physics Physics {
+              density -1
+              mass 0.02
+            }
+          }
+        ]
+        name "pole"
+        boundingObject USE POLE_SHAPE
+        physics Physics {
+          density -1
+          mass 0.3
+        }
+      }
+    }
+    # Five distance sensors fanned across the front (+x is forward)
+    DistanceSensor {
+      translation 0.1 0.06 0.01
+      rotation 0 0 1 1.5708
+      name "ds_left"
+      lookupTable [ 0 1000 0, 0.6 0 0 ]
+    }
+    DistanceSensor {
+      translation 0.1 0.04 0.01
+      rotation 0 0 1 0.7854
+      name "ds_front_left"
+      lookupTable [ 0 1000 0, 0.6 0 0 ]
+    }
+    DistanceSensor {
+      translation 0.1 0 0.01
+      name "ds_front"
+      lookupTable [ 0 1000 0, 0.6 0 0 ]
+    }
+    DistanceSensor {
+      translation 0.1 -0.04 0.01
+      rotation 0 0 1 -0.7854
+      name "ds_front_right"
+      lookupTable [ 0 1000 0, 0.6 0 0 ]
+    }
+    DistanceSensor {
+      translation 0.1 -0.06 0.01
+      rotation 0 0 1 -1.5708
+      name "ds_right"
+      lookupTable [ 0 1000 0, 0.6 0 0 ]
+    }
+  ]
+  name "cartpole"
+  boundingObject USE BODY
+  physics Physics {
+    density -1
+    mass 2
+    centerOfMass [ 0 0 -0.01 ]
+  }
+  controller "cartpole_nav_controller"
+  supervisor TRUE
+}
