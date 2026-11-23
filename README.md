@@ -16,9 +16,11 @@
 
 ```bash
 cd assignment6
-uv venv --python 3.12 .venv                       # or: python3.12 -m venv .venv
-uv pip install --python .venv/bin/python "deepbots==1.0.0" --no-deps
-uv pip install --python .venv/bin/python torch numpy "gym==0.26.2"
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install "deepbots==1.0.0" --no-deps
+pip install torch numpy "gym==0.26.2"
 ```
 
 > deepbots 1.0.0 pins `gym==0.21`, which no longer builds on modern setuptools, so deepbots is installed
